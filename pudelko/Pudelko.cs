@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pudelko
 {
-    public sealed class Pudelko : IFormattable, IEquatable<Pudelko>
+    public sealed class Pudelko : IFormattable, IEquatable<Pudelko>, IEnumerable<double>
     {
         public double A { get { return Math.Truncate(a * 1000) / 1000; } }
         public double B { get { return Math.Truncate(a * 1000) / 1000; } }
@@ -109,6 +110,44 @@ namespace pudelko
         {
             return HashCode.Combine(a, b, c, Unit);
         }
+
+        public IEnumerator<double> GetEnumerator()
+        {
+            for(int i = 0;i != 3; i++)
+            {
+                yield return this[i];    
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+        public static Pudelko Parse(string input)
+        {
+            UnitOfMeasure unitOfMeasure;
+            string[] tabela = input.Split(" ");
+            if(tabela[1] != tabela[4] && tabela[4] != tabela[7])//check if all units of measure are equal
+            {
+                throw new ArgumentException();
+            }
+            if(tabela[1] == "m")
+            { unitOfMeasure = UnitOfMeasure.meter; }
+            else if(tabela[1] == "cm")
+            {
+                unitOfMeasure = UnitOfMeasure.centimeter;
+            }
+            else if(tabela[1] == "mm")
+            {
+                unitOfMeasure = UnitOfMeasure.milimeter;
+            }
+            else
+            {
+                throw new ArgumentException("zła jednostka");
+            }
+            return new Pudelko(Convert.ToDouble(tabela[0]), Convert.ToDouble(tabela[3]), Convert.ToDouble(tabela[6]), unitOfMeasure);
+        }
+
         public static bool operator ==(Pudelko pudelko1, Pudelko pudelko2)
         {
             return pudelko1.Equals(pudelko2);
@@ -116,6 +155,30 @@ namespace pudelko
         public static bool operator !=(Pudelko pudelko1, Pudelko pudelko2)
         {
             return !pudelko1.Equals(pudelko2);
+        }
+        public static Pudelko operator +(Pudelko pudelko1, Pudelko pudelko2) 
+        {
+            double width = pudelko1.a + pudelko2.a;
+            double length = Math.Max(pudelko1.b, pudelko2.b);
+            double height = Math.Max(pudelko1.c, pudelko2.c);
+            return new Pudelko(width, length, height); 
+        }
+        public static explicit operator double[](Pudelko pudelko)
+        {
+            return new double[] { pudelko.a, pudelko.b, pudelko.c, };
+        }
+        public static implicit operator Pudelko(ValueTuple<int, int, int> value)
+        {          
+            return new Pudelko(value.Item1, value.Item2, value.Item3, UnitOfMeasure.milimeter);
+        }
+        public double this[int index]
+        {
+            get
+            {
+               if(index == 2) { return c; }
+               else if(index == 1) { return b; }
+               else { return a; }                        
+            }
         }
 
 
