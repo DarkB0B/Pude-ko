@@ -10,8 +10,8 @@ namespace pudelko
     public sealed class Pudelko : IFormattable, IEquatable<Pudelko>, IEnumerable<double>, IComparable<Pudelko>
     {
         public double A { get { return Math.Truncate(a * 1000) / 1000; } }
-        public double B { get { return Math.Truncate(a * 1000) / 1000; } }
-        public double C { get { return Math.Truncate(a * 1000) / 1000; } }
+        public double B { get { return Math.Truncate(b * 1000) / 1000; } }
+        public double C { get { return Math.Truncate(c * 1000) / 1000; } }
         private readonly double a;
         private readonly double b;
         private readonly double c;
@@ -20,35 +20,35 @@ namespace pudelko
         public UnitOfMeasure Unit { get; private set; }
         public Pudelko(double? a = null, double? b = null, double? c = null, UnitOfMeasure unit = UnitOfMeasure.meter)
         {
-            if (a == null)
+            if (a is null)
             {
-                if (unit == UnitOfMeasure.meter) { a = 10; }
-                else if (unit == UnitOfMeasure.centimeter) { a = 1000; }
-                else if (unit == UnitOfMeasure.milimeter) { a = 10000; }
+                if (unit == UnitOfMeasure.meter) { a = 0.1; }
+                else if (unit == UnitOfMeasure.centimeter) { a = 10; }
+                else if (unit == UnitOfMeasure.milimeter) { a = 100; }
             }
-            if (b == null)
+            if (b is null)
             {
-                if (unit == UnitOfMeasure.meter) { b = 10; }
-                else if (unit == UnitOfMeasure.centimeter) { b = 1000; }
-                else if (unit == UnitOfMeasure.milimeter) { b = 10000; }
+                if (unit == UnitOfMeasure.meter) { b = 0.1; }
+                else if (unit == UnitOfMeasure.centimeter) { b = 10; }
+                else if (unit == UnitOfMeasure.milimeter) { b = 100; }
             }
-            if (c == null)
+            if (c is null)
             {
-                if (unit == UnitOfMeasure.meter) { c = 10; }
-                else if (unit == UnitOfMeasure.centimeter) { c = 1000; }
-                else if (unit == UnitOfMeasure.milimeter) { c = 10000; }
+                if (unit == UnitOfMeasure.meter) { c = 0.1; }
+                else if (unit == UnitOfMeasure.centimeter) { c = 10; }
+                else if (unit == UnitOfMeasure.milimeter) { c = 100; }
             }
             switch (unit)
             {
                 case UnitOfMeasure.meter: break;
-                case UnitOfMeasure.centimeter: a = a * 100; b = b * 100; c = c * 100; break;
-                case UnitOfMeasure.milimeter: a = a * 1000; b = b * 1000; c = c * 1000; break;
+                case UnitOfMeasure.centimeter: a = a * 0.01; b = b * 0.01; c = c * 0.01; break;
+                case UnitOfMeasure.milimeter: a = a * 0.001; b = b * 0.001; c = c * 0.001; break;
             }
-            if (a <= 0 || b <= 0 || c <= 0)
+            if (a <= 0.001 || b <= 0.001 || c <= 0.001)
             {
                 throw new ArgumentOutOfRangeException("błędne wymiary pudełka");
             }
-            if (unit == UnitOfMeasure.meter || a > 10 || b > 10 || c > 10)
+            if ( a > 10 || b > 10 || c > 10)
             {
                 throw new ArgumentOutOfRangeException("błędne wymiary pudełka");
             }
@@ -59,16 +59,24 @@ namespace pudelko
         }
         public override string ToString()
         {
-            return $"{A} {Unit} x {B} {Unit} x {C} {Unit}";
+            switch (this.Unit)
+            {
+                case UnitOfMeasure.meter: return $"{Math.Round(A, 3):0.000} {"m"} × {Math.Round(B, 3):0.000} {"m"} × {Math.Round(C, 3):0.000} {"m"}";
+                case UnitOfMeasure.centimeter: return $"{Math.Round(A * 100, 1):0.0} {"cm"} × {Math.Round(B * 100, 1):0.0} {"cm"} × {Math.Round(C * 100, 1):0.0} {"cm"}";
+                case UnitOfMeasure.milimeter: return $"{Math.Round(A * 1000, 0)} {"mm"} × {Math.Round(B * 1000, 0)} {"mm"} × {Math.Round(C * 1000, 0)} {"mm"}";
+                default: return $"{Math.Round(A, 3):0.000} {"m"} × {Math.Round(B, 3):0.000} {"m"} × {Math.Round(C, 3):0.000} {"m"}"; ;
+            }
+            
         }
         public string ToString(string format)
         {
+            if(format == null) { return ToString(); }
             switch (format.ToLower())
             {
-                case "m": return $"{A} {UnitOfMeasure.meter} x {B} {UnitOfMeasure.meter} x {C} {UnitOfMeasure.meter}";
-                case "cm": return $"{Math.Round(A * 100, 1):0.0} {UnitOfMeasure.meter} x {Math.Round(B * 100, 1):0.0} {UnitOfMeasure.meter} x {Math.Round(C * 100, 1):0.0} {UnitOfMeasure.meter}";
-                case "mm": return $"{Math.Round(A * 10000, 1):0.000} {UnitOfMeasure.meter} x {Math.Round(B * 10000, 1):0.000} {UnitOfMeasure.meter} x {Math.Round(C * 10000, 1):0.000} {UnitOfMeasure.meter}";
-                default: throw new FormatException();
+                case "m": return $"{Math.Round(A, 3):0.000} {"m"} × {Math.Round(B, 3):0.000} {"m"} × {Math.Round(C, 3):0.000} {"m"}";
+                case "cm": return $"{Math.Round(A * 100, 1):0.0} {"cm"} × {Math.Round(B * 100, 1):0.0} {"cm"} × {Math.Round(C * 100, 1):0.0} {"cm"}";
+                case "mm": return $"{Math.Round(A * 1000, 0)} {"mm"} × {Math.Round(B * 1000, 0)} {"mm"} × {Math.Round(C * 1000, 0)} {"mm"}";
+                 default: throw new FormatException();
             }
 
         }
