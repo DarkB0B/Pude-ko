@@ -14,5 +14,8 @@ namespace pudelko
             Pudelko pudelko2 = new Pudelko(1, null, 1, UnitOfMeasure.milimeter);
             Console.WriteLine(pudelko2.ToString());
         }
+
+        
     }
+
 }

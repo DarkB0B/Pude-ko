@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace pudelko
 {
-    public sealed class Pudelko : IFormattable, IEquatable<Pudelko>, IEnumerable<double>
+    public sealed class Pudelko : IFormattable, IEquatable<Pudelko>, IEnumerable<double>, IComparable<Pudelko>
     {
         public double A { get { return Math.Truncate(a * 1000) / 1000; } }
         public double B { get { return Math.Truncate(a * 1000) / 1000; } }
@@ -181,7 +181,30 @@ namespace pudelko
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            if(obj is not Pudelko)
+            {
+                return false;
+            }
+            else
+            {
+                return Equals(obj as Pudelko);
+            }
+            
+        }
 
+       
+        public int CompareTo(Pudelko other)
+        {
+            if(this.Objetosc > other.Objetosc) { return 1; }
+            else if(this.Objetosc < other.Objetosc){ return -1; }
+            else if(this.Pole > other.Pole) { return 1; }
+            else if(this.Pole < other.Pole) { return -1; }
+            else if(this.a + this.b + this.c > other.a + other.b + other.c) { return 1; }
+            else if (this.a + this.b + this.c < other.a + other.b + other.c) { return 1; }
+            else { return 0; }
+        }
     }
 
 }
